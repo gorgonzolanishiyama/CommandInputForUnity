@@ -21,6 +21,7 @@ namespace InputCommand
     {
         private  KeyList keyList;   // 本ゲームで使用されるキーの対応リスト(例)"Up"⇒"8"　コンストラクタでセットされる
         public Dictionary<char, ButtonState> buttonStates = new Dictionary<char, ButtonState>(); //1フレーム当たりのデータ
+        public int cycle; //比較するフレーム数。(溜めが60フレームならここに60Fと入る。標準は1)
 
         /// <summary>
         /// コンストラクタ
@@ -37,22 +38,40 @@ namespace InputCommand
         }
 
         /// <summary>
+        /// サイクル回数分、キー比較を行う
+        /// </summary>
+        /// <param name="anotherFrameButtons">比較対象</param>
+        /// <returns>比較の合否</returns>
+        /// 
+        public bool CompareToInstance(List<OneFrameButton_Input> anotherFrameButtons)
+        {
+            for (int i = 0; i < cycle; i++)
+            {
+                if (!CompareToInstance(anotherFrameButtons[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// キーリストを元に、比較を行う
         /// </summary>
         /// <param name="anotherFrameButton">比較対象</param>
-        /// <returns>比較の合否</returns>
-        public bool CompareToInstance(OneFrameButton_Input anotherFrameButton)
-        {
-            foreach( char tartgetchar in keyList.GetAllOutputWordList())
-                //全キーを比較する
+        /// <returns>比較の合否</returns> 
+        private bool CompareToInstance(OneFrameButton_Input anotherFrameButton) 
+        { 
+            foreach (char tartgetchar in keyList.GetAllOutputWordList())
+            //全キーを比較する
             {
-                if (buttonStates[tartgetchar] == ButtonState.None )
-                    //評価無効なら評価継続
+                if (buttonStates[tartgetchar] == ButtonState.None)
+                //評価無効なら評価継続
                 {
                     continue;
                 }
-                if(buttonStates[tartgetchar] != anotherFrameButton.buttonStates[tartgetchar]) 
-                    //比較し異なる用であれば偽を返す
+                if (buttonStates[tartgetchar] != anotherFrameButton.buttonStates[tartgetchar])
+                //比較し異なる用であれば偽を返す
                 {
                     return false;
                 }
@@ -64,7 +83,8 @@ namespace InputCommand
         /// 文字列を解釈してコマンドデータに変換する
         /// </summary>
         /// <param name="command">解釈するコマンド文字列 (例)「.2.[^6]...｣｢.2.6...｣｢.[^2].6...｣｢....A..｣ </param>
-        public void SetCommand(string command)
+        /// <param name="cycle"> 何フレーム前まで確認するか </param>
+        public void SetCommand(string command, int cycle)
         {
             foreach (char tempSign in keyList.GetAllOutputWordList())
                 //キーリストに従いループする
@@ -98,6 +118,7 @@ namespace InputCommand
                     buttonStates[tempSign] = ButtonState.None;
                 }
             }
+            this.cycle = cycle;
         }
         /// <summary>
         /// 直接キーを追加する場合(ダミーデータ作成を想定)

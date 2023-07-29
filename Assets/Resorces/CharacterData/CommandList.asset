@@ -15,7 +15,16 @@ MonoBehaviour:
   commandData:
   - outputWord: "\u306F\u3069\u3046\u3051\u3093"
     inputAcceptanceFrame: 30
-    commandRegEXs: ^(\\[(.2.[^6]...)\\]){1,}.*(\\[(.2.6...)\\]){1,}.*(\\[(.[^2].6...)\\]){1,}.*(\\[(....A..)\\]){1,}.*$
+    commandRegEXs: ^([.2.[^6]...]){1}.*([.2.6...]){1}.*([(.[^2].6...)]){1}.*([(....A..)]){1}.*$
   - outputWord: "\u5927\u30B4\u30B9"
     inputAcceptanceFrame: 30
-    commandRegEXs: ^(\\[(...6A..)\\]){1,}.*$
+    commandRegEXs: ^([...6A..]){1}.*$
+  - outputWord: "\u30B5\u30DE\u30BD\u30C3"
+    inputAcceptanceFrame: 60
+    commandRegEXs: ^([.2.....]){50}.*([8[^2]..A..]){1}.*$
+  - outputWord: "\u30C8\u30EB\u30CD\u30FC\u30C9\u30C3"
+    inputAcceptanceFrame: 30
+    commandRegEXs: ^([.2[^4]....]){1}.*([.2.4...]){1}.*([.[^2]4....]){1}.*([....A..]){1}.*$
+  - outputWord: "\u5929"
+    inputAcceptanceFrame: 120
+    commandRegEXs: ^([....A..]){1}.*([....[^A]..]){1}.*([....A..]){1}.*([...6...]){1}.*([....A..]){1}.*([....[^A]..]){1}.*([....A..]){1}.*$

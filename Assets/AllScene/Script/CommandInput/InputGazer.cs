@@ -18,16 +18,19 @@ namespace InputCommand
     {
         public KeyList keyList;                                                //キーリスト　　　　　手動で代入する
 
-        private HashSet<Action<OneFrameButton_Input>> keyObserves = new HashSet<Action<OneFrameButton_Input>>() ;              //イベント重複登録防止用
+        private HashSet<Action<List<OneFrameButton_Input>>> keyObserves = new HashSet<Action<List<OneFrameButton_Input>>>() ;              //イベント重複登録防止用
 
-        public List<string> buttonsForDebug = new List<string>() ;       //デバッグ時の入力キー確認表示用リスト
+        public List<OneFrameButton_Input> commandPerFrame = new List<OneFrameButton_Input>() ;       //入力キー確認表示用リスト
+
+        public List<string> commandPefFrameForDebug = new List<string>() ;
         public int count = 0;                                            //デバッグ時の有効なイベントハンドラ数。
-
-        OneFrameButton_Input oneFrameButton_Input;
+        public int commandPerFrameCount ;
 
         void Awake()
         {
-            oneFrameButton_Input = new OneFrameButton_Input(keyList);
+
+            commandPerFrame = new List<OneFrameButton_Input>(new OneFrameButton_Input[commandPerFrameCount]);
+            commandPefFrameForDebug = new List<string>(new string[commandPerFrameCount]);
         }
 
         /// <summary>
@@ -35,7 +38,8 @@ namespace InputCommand
         /// </summary>
         void FixedUpdate()
         {
-            oneFrameButton_Input.Reset();
+            OneFrameButton_Input oneFrameButton_Input;
+            oneFrameButton_Input = new OneFrameButton_Input(keyList);
             //十字キー確認
             if (Input.GetAxisRaw("Vertical") > 0) oneFrameButton_Input.SetStateUpInFixedUpdate(ButtonState.On);
             if (Input.GetAxisRaw("Vertical") < 0) oneFrameButton_Input.SetStateDownInFixedUpdate(ButtonState.On);
@@ -46,14 +50,19 @@ namespace InputCommand
             {
                 if (Input.GetButton(keyList.GetButton(tempKey))) oneFrameButton_Input.SetstateButton(tempKey, ButtonState.On);
             }
-            foreach( var keyObserve in keyObserves)
-            {
-                keyObserve.Invoke(oneFrameButton_Input);
-            }
+
+            //入力キープール更新
+            commandPerFrame.Insert(0, oneFrameButton_Input);
+            commandPerFrame.RemoveAt(commandPerFrame.Count - 1);
 
             //デバッグ用の入力キー確認表示用リスト更新
-            buttonsForDebug.Insert(0, oneFrameButton_Input.GetString());
-            buttonsForDebug.RemoveAt(buttonsForDebug.Count - 1);
+            commandPefFrameForDebug.Insert(0, oneFrameButton_Input.GetString());
+            commandPefFrameForDebug.RemoveAt(commandPefFrameForDebug.Count - 1);
+            
+            foreach (var keyObserve in keyObserves)
+            {
+                keyObserve.Invoke(commandPerFrame);
+            }
         }
 
         /// <summary>
@@ -74,6 +83,11 @@ namespace InputCommand
         {
             keyObserves.Remove(command.inputSetEvent);
             count = keyObserves.Count;
+        }
+
+        public List<OneFrameButton_Input> GetCommandList()
+        {
+            return commandPerFrame;
         }
     }
 }

@@ -76,7 +76,7 @@ namespace InputCommand
         {
             List<OneFrameButton_Base> buttonBases = new List<OneFrameButton_Base>();
             string[] CommandPart = commandRegEX.Replace("}.*(", "}@{").Split('@'); //各フレームで分割している。
-            Regex regex = new Regex(@".*\\\[(?<command>.*)\\\].*{(?<cycle>.*),}.*");
+            Regex regex = new Regex(@".*\[(?<command>.*)\].*{(?<cycle>[0-9]*).*}.*");
 
             foreach (string partCommand in CommandPart)
             //各フレームごとに走査
@@ -93,15 +93,18 @@ namespace InputCommand
                         //同じ文字が出たらキャッシュを返す
                         {
                             command = new OneFrameButton_Base(keyList);
-                            command.SetCommand(commandMatched);
+                            command.SetCommand(commandMatched, cycleMatched);
                             commandCache.Add(commandMatched, command);
                         }
+                        buttonBases.Add(command);
+/*
 
                         for (int i = 0; i < cycleMatched; i++)
                         //繰り返し数反映
                         {
                             buttonBases.Add(command);
                         }
+*/
                     }
                 }
                 catch (Exception ex)
